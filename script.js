@@ -77,19 +77,24 @@ async function fetchQuote() {
     quoteAuthor.textContent = '';
     
     try {
-        // ZenQuotes API - using a proxy to avoid CORS issues
-        // Direct API: https://zenquotes.io/api/random
-        // Using a CORS proxy or the quotes.rest alternative
+        // Determine the API endpoint based on environment
+        // Use our own serverless function on Vercel, or CORS proxy for localhost
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         
-        // Try using the allorigins proxy for ZenQuotes
-        const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://zenquotes.io/api/random'));
+        let quotes;
         
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+        if (isLocalhost) {
+            // Use CORS proxy for local development
+            const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://zenquotes.io/api/random'));
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            quotes = JSON.parse(data.contents);
+        } else {
+            // Use our own serverless API on Vercel (bypasses CORS)
+            const response = await fetch(`/api/quote?t=${Date.now()}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            quotes = await response.json();
         }
-        
-        const data = await response.json();
-        const quotes = JSON.parse(data.contents);
         
         if (quotes && quotes[0]) {
             displayQuote(quotes[0].q, quotes[0].a);
