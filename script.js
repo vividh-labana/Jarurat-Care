@@ -72,6 +72,9 @@ async function fetchQuote() {
     // Show loading state
     newQuoteBtn.classList.add('loading');
     newQuoteBtn.disabled = true;
+    quoteText.classList.add('loading');
+    quoteText.textContent = '';
+    quoteAuthor.textContent = '';
     
     try {
         // ZenQuotes API - using a proxy to avoid CORS issues
@@ -102,6 +105,7 @@ async function fetchQuote() {
         // Remove loading state
         newQuoteBtn.classList.remove('loading');
         newQuoteBtn.disabled = false;
+        quoteText.classList.remove('loading');
     }
 }
 
